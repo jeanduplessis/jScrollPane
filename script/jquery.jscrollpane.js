@@ -63,20 +63,21 @@
 				horizontalBar, horizontalTrack, horizontalTrackWidth, horizontalDragWidth, arrowLeft, arrowRight,
 				reinitialiseInterval, originalPadding, originalPaddingTotalWidth, previousPaneWidth,
 				wasAtTop = true, wasAtLeft = true, wasAtBottom = false, wasAtRight = false,
-				mwEvent = $.fn.mwheelIntent ? 'mwheelIntent.jsp' : 'mousewheel.jsp';
+				mwEvent = $.fn.mwheelIntent ? 'mwheelIntent.jsp' : 'mousewheel.jsp', isBorderBoxSizing = false;
 
+      isBorderBoxSizing = getStylePropertyValue(elem,'boxSizing') == "border-box";
+      
 			originalPadding = elem.css('paddingTop') + ' ' +
 								elem.css('paddingRight') + ' ' +
 								elem.css('paddingBottom') + ' ' +
 								elem.css('paddingLeft');
-			originalPaddingTotalWidth = (parseInt(elem.css('paddingLeft')) || 0) +
+			originalPaddingTotalWidth = isBorderBoxSizing ? 0 : (parseInt(elem.css('paddingLeft')) || 0) +
 										(parseInt(elem.css('paddingRight')) || 0);
 
 			initialise(s);
 
 			function initialise(s)
 			{
-
 				var clonedElem, tempWrapper, /*firstChild, lastChild, */isMaintainingPositon, lastContentX, lastContentY,
 						hasContainingSpaceChanged;
 
@@ -974,6 +975,33 @@
 					}
 				)
 			}
+			
+			//adapted from http://perfectionkills.com/feature-testing-css-properties/
+			function getStylePropertyValue($element,propName) 
+			{
+			  var element = $element.get(0),
+			      prefixed, 
+			      prefixes = ['Moz', 'Webkit', 'Khtml', 'O', 'Ms'];
+    
+        // test standard property first
+        if (typeof element.style[propName] == 'string')
+        {
+          return $element.css(propName);
+        } 
+    
+        // test vendor specific properties
+        propName = propName.charAt(0).toUpperCase() + propName.slice(1);
+        for (var i=0, l=prefixes.length; i<l; i++) 
+        {
+          prefixed = prefixes[i] + propName;
+          if (typeof element.style[prefixed] == 'string')
+          {
+            return $element.css(prefixed);
+          } 
+        }
+        
+        return false;
+      }
 
 			// Public API
 			$.extend(
